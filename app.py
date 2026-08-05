@@ -102,7 +102,7 @@ def _render_detail_view() -> bool:
     pair_value = st.session_state.get("detail_pair_idx")
     if pair_value is None:
         pair_value = st.query_params.get("pair")
-    if not analysis_value or not pair_value:
+    if analysis_value is None or pair_value is None or pair_value == "":
         return False
 
     session = _get_analysis_session(analysis_value)
