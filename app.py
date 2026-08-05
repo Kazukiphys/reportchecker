@@ -221,6 +221,11 @@ def _render_detail_view() -> bool:
 
     st.title("一致箇所の詳細ビュー")
     st.caption(f"{docs[pair.idx_a].name} × {docs[pair.idx_b].name} / 一致率: {pair.similarity * 100:.2f}%")
+    with st.container(border=True):
+        st.markdown("**色の見方**")
+        st.write("左右のPDFで一致した同じ場所だけを，黄色で表示します。")
+        st.write("この機能は未完成のため，表示結果はあくまで参考情報として確認してください。")
+        st.write("黄色: 左右で同じ場所の一致候補")
 
     if st.button("比較結果へ戻る"):
         _clear_detail_query()
