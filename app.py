@@ -139,8 +139,7 @@ def _render_pdf_panel(pdf_bytes: bytes, title: str, height: int = 820) -> None:
 
     try:
         pdf = pdfium.PdfDocument(BytesIO(pdf_bytes))
-        # Keep rendering light for Community Cloud memory limits.
-        preview_pages = min(12, len(pdf))
+        preview_pages = min(80, len(pdf))
         if preview_pages <= 0:
             return
 
@@ -148,7 +147,7 @@ def _render_pdf_panel(pdf_bytes: bytes, title: str, height: int = 820) -> None:
         image_blocks: list[str] = []
         for page_idx in range(preview_pages):
             page = pdf[page_idx]
-            bitmap = page.render(scale=1.1, rotation=0)
+            bitmap = page.render(scale=1.5, rotation=0)
             pil_image = bitmap.to_pil()
             img_buffer = BytesIO()
             pil_image.save(img_buffer, format="PNG")
@@ -170,7 +169,7 @@ def _render_pdf_panel(pdf_bytes: bytes, title: str, height: int = 820) -> None:
         components.html(scroller_html, height=height + 12)
 
         if len(pdf) > preview_pages:
-            st.info(f"負荷軽減のため先頭{preview_pages}ページのみ表示しています。全ページはPDFダウンロードで確認してください。")
+            st.info(f"ページ数が多いため先頭{preview_pages}ページのみ表示しています。必要ならPDFをダウンロードして確認してください。")
     except Exception:
         st.info("プレビュー生成に失敗しました。PDFダウンロードで確認してください。")
 
@@ -273,29 +272,42 @@ def _render_detail_view() -> bool:
     else:
         st.write("該当なし")
 
+    st.divider()
+    st.subheader("全体の類似度")
+    st.write(
+        "上部に表示している「一致率」は，PDF全文を文字の特徴に変換して，比較した2件がどれだけ似ているかを0〜100%で示した値です。"
+        " 1に近いほど本文全体の書き方や語句の重なりが強く，0に近いほど似ていません。"
+    )
     st.markdown(
         """
-## 全体の類似度
-上部に表示している「一致率」は，PDF全文を文字の特徴に変換して，比較した2件がどれだけ似ているかを0〜100%で示した値です。1に近いほど本文全体の書き方や語句の重なりが強く，0に近いほど似ていません。
-
 - 0.1台: かなり低く，共通の表現が少しある程度です。
 - 0.2台: 似ている可能性はありますが，テーマや定型表現の共通でも出ます。
 - 0.35以上: このアプリでは疑わしいペアとして拾う目安です。
 - 0.5以上: かなり強く似ている可能性が高いので，詳細確認を優先します。
 - 0.7以上: 強い一致が疑われるため，左右PDFの一致候補を重点的に確認します。
+        """
+    )
 
-## 類似文候補の類似度
-下に並ぶ「類似度」は，文ごとに切り出した左右の文章を比較した値です。全体の一致率とは別で，1つの文どうしがどれだけ近いかを示します。
-
+    st.subheader("類似文候補の類似度")
+    st.write(
+        "下に並ぶ「類似度」は，文ごとに切り出した左右の文章を比較した値です。"
+        " 全体の一致率とは別で，1つの文どうしがどれだけ近いかを示します。"
+    )
+    st.markdown(
+        """
 - 高いほど，その文同士の言い回しがよく似ています。
 - 全体の一致率がそこまで高くなくても，個別の文が強く似ることがあります。
 - 逆に，全体の一致率が高くても，個々の文は完全一致ではない場合があります。
-
-したがって，類似文候補は「その文がどれだけ近いか」を見るための補助指標として使ってください。盗用の判断は，全体の一致率とあわせて確認すると分かりやすくなります。
-
-## 判断のしかた
-数値だけで断定せず，同一文候補の長さ，類似文候補の数，そして左右PDFのどの部分が重なっているかを合わせて確認してください。
         """
+    )
+    st.write(
+        "したがって，類似文候補は「その文がどれだけ近いか」を見るための補助指標として使ってください。"
+        " 盗用の判断は，全体の一致率とあわせて確認すると分かりやすくなります。"
+    )
+
+    st.subheader("判断のしかた")
+    st.write(
+        "数値だけで断定せず，同一文候補の長さ，類似文候補の数，そして左右PDFのどの部分が重なっているかを合わせて確認してください。"
     )
 
     return True
