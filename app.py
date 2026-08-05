@@ -148,15 +148,37 @@ def _render_pdf_panel(pdf_bytes: bytes, title: str, height: int = 820) -> None:
 
     try:
         pdf = pdfium.PdfDocument(BytesIO(pdf_bytes))
-        preview_pages = min(4, len(pdf))
+        preview_pages = min(80, len(pdf))
         if preview_pages <= 0:
             return
 
-        st.caption("PDFプレビュー（先頭4ページまで）")
+        st.caption("PDFプレビュー（パネル内スクロール）")
+        image_blocks: list[str] = []
         for page_idx in range(preview_pages):
             page = pdf[page_idx]
             bitmap = page.render(scale=1.5, rotation=0)
-            st.image(bitmap.to_pil(), use_container_width=True)
+            pil_image = bitmap.to_pil()
+            img_buffer = BytesIO()
+            pil_image.save(img_buffer, format="PNG")
+            img_b64 = base64.b64encode(img_buffer.getvalue()).decode("ascii")
+            image_blocks.append(
+                "<div style='margin:0 0 12px 0;'>"
+                f"<div style='font-size:12px;color:#666;margin:0 0 4px 0;'>ページ {page_idx + 1}</div>"
+                f"<img src='data:image/png;base64,{img_b64}' style='width:100%;height:auto;border:1px solid #eee;border-radius:6px;'/>"
+                "</div>"
+            )
+
+        scroller_html = (
+            "<div style='height:"
+            f"{height}px;"
+            "overflow-y:auto;padding:8px;border:1px solid #ddd;border-radius:8px;background:#fff;'>"
+            + "".join(image_blocks)
+            + "</div>"
+        )
+        components.html(scroller_html, height=height + 12)
+
+        if len(pdf) > preview_pages:
+            st.info(f"ページ数が多いため先頭{preview_pages}ページのみ表示しています。必要ならPDFをダウンロードして確認してください。")
     except Exception:
         st.info("埋め込み表示に失敗しました。PDFダウンロードで確認してください。")
 
