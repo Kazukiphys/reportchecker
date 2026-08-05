@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+from io import BytesIO
 import pickle
 import threading
 import uuid
@@ -12,6 +13,11 @@ from typing import Dict, List, Tuple
 import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
+
+try:
+    import pypdfium2 as pdfium
+except ImportError:
+    pdfium = None
 
 from plagiarism_checker import (
     Document,
@@ -125,6 +131,34 @@ def _render_pdf_panel(pdf_bytes: bytes, title: str, height: int = 820) -> None:
         "style='border:1px solid #ddd;border-radius:8px;'></iframe>"
     )
     components.html(html, height=height + 12)
+
+    # Some browsers/cloud sandboxes fail to render embedded PDF plugins.
+    # Always provide direct download and image preview fallback.
+    st.download_button(
+        "PDFをダウンロード",
+        data=pdf_bytes,
+        file_name="annotated_preview.pdf",
+        mime="application/pdf",
+        key=f"download_{title}_{len(pdf_bytes)}",
+    )
+
+    if pdfium is None:
+        st.info("プレビュー画像を生成できないため、PDFダウンロードで確認してください。")
+        return
+
+    try:
+        pdf = pdfium.PdfDocument(BytesIO(pdf_bytes))
+        preview_pages = min(4, len(pdf))
+        if preview_pages <= 0:
+            return
+
+        st.caption("PDFプレビュー（先頭4ページまで）")
+        for page_idx in range(preview_pages):
+            page = pdf[page_idx]
+            bitmap = page.render(scale=1.5, rotation=0)
+            st.image(bitmap.to_pil(), use_container_width=True)
+    except Exception:
+        st.info("埋め込み表示に失敗しました。PDFダウンロードで確認してください。")
 
 
 def _render_detail_view() -> bool:
