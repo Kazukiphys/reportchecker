@@ -1,0 +1,289 @@
+:root {
+  --bg: #f7f7f2;
+  --paper: #fffefa;
+  --ink: #1f1a14;
+  --muted: #6f665b;
+  --accent: #be4f23;
+  --accent-soft: #f8d9bf;
+  --line: #e8dece;
+  --ok: #2f7a3d;
+  --warn: #9f4e1f;
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap");
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Source Sans 3", "Noto Sans JP", "Segoe UI", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 85% 12%, rgba(190, 79, 35, 0.13), transparent 35%),
+    radial-gradient(circle at 12% 90%, rgba(128, 161, 93, 0.15), transparent 30%),
+    var(--bg);
+}
+
+.shell {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 28px 20px 56px;
+}
+
+.shell-home {
+  max-width: 980px;
+}
+
+.hero {
+  padding: 30px;
+  margin-bottom: 16px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: linear-gradient(170deg, #fff8f1 0%, #fefdf8 100%);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+}
+
+.hero-signature {
+  margin: 0 4px 8px 0;
+  font-size: 0.92rem;
+  font-style: italic;
+  color: var(--muted);
+  text-align: right;
+}
+
+h1 {
+  margin: 8px 0 12px;
+  font-size: clamp(1.9rem, 4vw, 2.9rem);
+}
+
+.lead {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px;
+  margin-top: 16px;
+  background: var(--paper);
+  box-shadow: 0 5px 26px rgba(65, 42, 17, 0.06);
+}
+
+.form-card {
+  padding: 24px;
+}
+
+.field {
+  margin-bottom: 14px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+input[type="file"],
+input[type="number"] {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  background: #fff;
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkbox-row label {
+  margin: 0;
+}
+
+.primary-btn,
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: none;
+  padding: 10px 18px;
+  text-decoration: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-btn {
+  background: var(--accent);
+  color: #fff;
+}
+
+.primary-btn:hover {
+  filter: brightness(1.06);
+}
+
+.link-btn {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+}
+
+.notice {
+  font-size: 0.95rem;
+}
+
+.warn,
+.warn-block {
+  color: var(--warn);
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 18px;
+  margin-bottom: 8px;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.table th,
+.table td {
+  border-bottom: 1px solid var(--line);
+  padding: 10px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.compact td,
+.compact th {
+  padding: 8px;
+}
+
+.small-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.small-link:hover {
+  text-decoration: underline;
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+}
+
+.chip {
+  background: #f5eee3;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+}
+
+.exact-chip {
+  background: #ffd0ca;
+}
+
+.near-chip {
+  background: #fff4b8;
+}
+
+.pdf-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.pdf-card h2 {
+  margin-top: 2px;
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.pdf-frame {
+  width: 100%;
+  height: 78vh;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.match-block {
+  margin: 12px 0;
+  padding: 10px;
+  border-left: 4px solid var(--accent-soft);
+  background: #fffcf7;
+}
+
+.score {
+  margin: 0 0 8px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.match-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.mini-title {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+@media (max-width: 980px) {
+  .grid-two,
+  .pdf-grid,
+  .match-columns,
+  .topbar {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .topbar-actions {
+    justify-content: start;
+  }
+
+  .pdf-frame {
+    height: 58vh;
+  }
+}

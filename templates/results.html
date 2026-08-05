@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title }} - 比較結果</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">RESULTS</p>
+          <h1>比較結果</h1>
+          <p class="lead">比較対象 {{ documents|length }} 件 / 総ペア {{ pair_count }} 件 / しきい値超え {{ results_count }} 件</p>
+        </div>
+        <div class="topbar-actions">
+          <a class="link-btn" href="/analysis/{{ analysis_id }}/results.csv">CSV保存</a>
+          <a class="link-btn" href="/">新しく比較</a>
+        </div>
+      </header>
+
+      <section class="card">
+        <h2>抽出したファイル情報</h2>
+        <div class="chips">
+          <span class="chip">OCR利用 {{ ocr_count }} 件</span>
+          {% if failed_files|length > 0 %}
+          <span class="chip warn">抽出失敗 {{ failed_files|length }} 件</span>
+          {% endif %}
+        </div>
+        <table class="table compact">
+          <thead>
+            <tr>
+              <th>レポート</th>
+              <th>OCR利用</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in documents %}
+            <tr>
+              <td>{{ d.name }}</td>
+              <td>{{ "はい" if d.ocr_used else "いいえ" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+      {% if failed_files|length > 0 %}
+      <section class="card warn-block">
+        <h2>抽出失敗ファイル</h2>
+        <ul>
+          {% for f in failed_files %}
+          <li>{{ f }}</li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+
+      <section class="card">
+        <h2>一致候補一覧</h2>
+        {% if rows|length == 0 %}
+        <p>しきい値以上の疑わしいペアは見つかりませんでした。</p>
+        {% else %}
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>レポートA</th>
+              <th>レポートB</th>
+              <th>一致率</th>
+              <th>同一文</th>
+              <th>類似文</th>
+              <th>詳細</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in rows %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ r["レポートA"] }}</td>
+              <td>{{ r["レポートB"] }}</td>
+              <td>{{ r["一致率"] }}%</td>
+              <td>{{ r["同一文候補数"] }}</td>
+              <td>{{ r["類似文候補数"] }}</td>
+              <td><a class="small-link" href="/analysis/{{ analysis_id }}/pair/{{ r['idx'] }}">詳細を開く</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+      </section>
+
+      <section class="card">
+        <h2>一致率と候補数の見方（簡潔版）</h2>
+        <p>
+          一致率は「文書全体の近さ」を見る値で，同一文候補・類似文候補は「文単位で条件を満たした箇所」の数です。
+          そのため，候補数が0でも一致率が高くなる場合があります。
+        </p>
+        <ul>
+          <li>全体は似ているが，文単位ではしきい値を超えない</li>
+          <li>改行や体裁の差で文分割がずれる</li>
+          <li>表・数値・見出し・定型表現が多い</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

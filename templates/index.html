@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="shell shell-home">
+      <p class="hero-signature">by Kazuki Kitaoka</p>
+      <section class="hero">
+        <p class="eyebrow">REPORT CHECKER</p>
+        <h1>レポート一致チェック</h1>
+          <p class="lead">
+          複数PDFを比較し，一致率が高い組み合わせと一致候補箇所を確認します。
+        </p>
+      </section>
+
+      <section class="card form-card">
+        <form method="post" action="/analyze" enctype="multipart/form-data">
+          <div class="field">
+            <label for="files">PDFファイル（2件以上）</label>
+            <input id="files" name="files" type="file" accept=".pdf,application/pdf" multiple required />
+          </div>
+
+          <div class="grid-two">
+            <div class="field">
+              <label for="suspicious_threshold">一致率しきい値（0.10〜0.95）</label>
+              <input id="suspicious_threshold" name="suspicious_threshold" type="number" min="0.1" max="0.95" step="0.01" value="0.35" />
+            </div>
+            <div class="field">
+              <label for="near_match_threshold">類似文しきい値（0.50〜0.98）</label>
+              <input id="near_match_threshold" name="near_match_threshold" type="number" min="0.5" max="0.98" step="0.01" value="0.72" />
+            </div>
+          </div>
+
+          <button class="primary-btn" type="submit">比較を実行</button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
