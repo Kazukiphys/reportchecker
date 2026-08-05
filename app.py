@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import html
 from io import BytesIO
 import pickle
 import threading
@@ -281,6 +282,19 @@ if _render_detail_view():
 st.markdown("<div style='text-align:right;font-style:italic;color:#666;'>by Kazuki Kitaoka</div>", unsafe_allow_html=True)
 st.title("レポート一致チェック")
 st.caption("複数PDFを比較して，一致率の高い組み合わせと一致箇所を確認できます。")
+st.markdown(
+    """
+<style>
+.pair-row-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 2.2rem;
+}
+</style>
+    """,
+    unsafe_allow_html=True,
+)
 
 with st.expander("使い方", expanded=False):
     st.markdown(
@@ -435,11 +449,16 @@ if analysis_session is not None:
     st.subheader("詳細（一致箇所）")
     st.caption("各行の「詳細を開く」を押すと，別ビューで左右PDFと一致箇所のマーカーを表示します。")
     for idx, r in enumerate(results):
-        row_col1, row_col2 = st.columns([5, 1])
+        row_col1, row_col2 = st.columns([12, 1])
+        row_text = f"{idx + 1}. {r.name_a} × {r.name_b} / 一致率: {r.similarity * 100:.2f}%"
         with row_col1:
-            st.write(f"{idx + 1}. {r.name_a} × {r.name_b} / 一致率: {r.similarity * 100:.2f}%")
+            safe_text = html.escape(row_text)
+            st.markdown(
+                f"<div class='pair-row-text' title='{safe_text}'>{safe_text}</div>",
+                unsafe_allow_html=True,
+            )
         with row_col2:
-            if st.button("詳細を開く", key=f"open_detail_{idx}"):
+            if st.button("詳細を開く", key=f"open_detail_{idx}", use_container_width=True):
                 if analysis_id:
                     _activate_detail_view(analysis_id, idx)
                     st.rerun()
