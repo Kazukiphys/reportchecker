@@ -110,7 +110,8 @@ def _set_detail_query(analysis_id: str, pair_idx: int) -> None:
 def _activate_detail_view(analysis_id: str, pair_idx: int) -> None:
     st.session_state["detail_analysis_id"] = analysis_id
     st.session_state["detail_pair_idx"] = pair_idx
-    _set_detail_query(analysis_id, pair_idx)
+    # Streamlit Cloudではquery_params遷移が不安定なケースがあるため、
+    # 詳細遷移はsession_stateを一次ソースとして扱う。
 
 
 def _render_pdf_panel(pdf_bytes: bytes, title: str, height: int = 820) -> None:
@@ -127,16 +128,22 @@ def _render_pdf_panel(pdf_bytes: bytes, title: str, height: int = 820) -> None:
 
 
 def _render_detail_view() -> bool:
-    analysis_value = st.session_state.get("detail_analysis_id") or st.query_params.get("analysis")
     pair_value = st.session_state.get("detail_pair_idx")
     if pair_value is None:
         pair_value = st.query_params.get("pair")
+
+    analysis_value = (
+        st.session_state.get("detail_analysis_id")
+        or st.session_state.get("analysis_id")
+        or st.query_params.get("analysis")
+    )
+
     if analysis_value is None or pair_value is None or pair_value == "":
         return False
 
-    session = _get_analysis_session(analysis_value)
-    if session is None and st.session_state.get("analysis_id") == analysis_value:
-        session = st.session_state.get("analysis_session")
+    session = st.session_state.get("analysis_session")
+    if session is None:
+        session = _get_analysis_session(analysis_value)
 
     if session is None:
         st.warning("比較結果の保存先が見つかりません。もう一度比較を実行してください。")
@@ -309,8 +316,24 @@ if run:
 
     st.session_state["analysis_id"] = analysis_id
     st.session_state["analysis_session"] = analysis_session
-    st.query_params["analysis"] = analysis_id
-    st.query_params["pair"] = ""
+    st.session_state.pop("detail_pair_idx", None)
+    st.session_state.pop("detail_analysis_id", None)
+
+
+analysis_session = st.session_state.get("analysis_session")
+if analysis_session is None:
+    analysis_id_from_state = st.session_state.get("analysis_id")
+    if analysis_id_from_state:
+        restored = _get_analysis_session(analysis_id_from_state)
+        if restored is not None:
+            st.session_state["analysis_session"] = restored
+            analysis_session = restored
+
+if analysis_session is not None:
+    documents = analysis_session.documents
+    failed_files = analysis_session.failed_files
+    results = analysis_session.results
+    analysis_id = st.session_state.get("analysis_id")
 
     st.subheader("比較結果")
     st.write(f"比較対象: {len(documents)}件 / ペア数: {len(documents) * (len(documents) - 1) // 2}件")
@@ -366,5 +389,6 @@ if run:
             st.write(f"{idx + 1}. {r.name_a} × {r.name_b} / 一致率: {r.similarity * 100:.2f}%")
         with row_col2:
             if st.button("詳細を開く", key=f"open_detail_{idx}"):
-                _activate_detail_view(analysis_id, idx)
-                st.rerun()
+                if analysis_id:
+                    _activate_detail_view(analysis_id, idx)
+                    st.rerun()

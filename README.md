@@ -39,6 +39,19 @@ streamlit run app.py
 4. Main file path に `app.py` を指定します。
 5. Deploy を実行します。
 
+今回の公開先リポジトリ:
+
+- https://github.com/Kazukiphys/reportchecker.git
+
+初回デプロイ時の推奨設定:
+
+- Branch: `main`
+- Main file path: `app.py`
+- Python version: `runtime.txt` の `python-3.11` を利用
+
+デプロイ後は `https://<your-app-name>.streamlit.app` のURLが発行されます。
+このURLを開くだけで利用者はアプリを使えます。
+
 この構成では、公開時の本体は `app.py` です。`main.py` と `templates/` は FastAPI版の別実装として残していますが、GitHub公開で動かす対象は Streamlit版です。
 
 ## 仕組み（簡易）
