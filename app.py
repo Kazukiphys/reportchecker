@@ -336,6 +336,5 @@ if run:
         with row_col1:
             st.write(f"{idx + 1}. {r.name_a} × {r.name_b} / 一致率: {r.similarity * 100:.2f}%")
         with row_col2:
-            if st.button("詳細を開く", key=f"open_detail_{idx}"):
-                _activate_detail_view(analysis_id, idx)
-                st.rerun()
+            detail_href = f"?analysis={analysis_id}&pair={idx}"
+            st.markdown(f'<a href="{detail_href}" target="_self">詳細を開く</a>', unsafe_allow_html=True)
