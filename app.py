@@ -69,11 +69,19 @@ def _clear_detail_query() -> None:
     except Exception:
         st.query_params["analysis"] = ""
         st.query_params["pair"] = ""
+    st.session_state.pop("detail_analysis_id", None)
+    st.session_state.pop("detail_pair_idx", None)
 
 
 def _set_detail_query(analysis_id: str, pair_idx: int) -> None:
     st.query_params["analysis"] = analysis_id
     st.query_params["pair"] = str(pair_idx)
+
+
+def _activate_detail_view(analysis_id: str, pair_idx: int) -> None:
+    st.session_state["detail_analysis_id"] = analysis_id
+    st.session_state["detail_pair_idx"] = pair_idx
+    _set_detail_query(analysis_id, pair_idx)
 
 
 def _render_pdf_panel(pdf_bytes: bytes, title: str, height: int = 820) -> None:
@@ -90,8 +98,10 @@ def _render_pdf_panel(pdf_bytes: bytes, title: str, height: int = 820) -> None:
 
 
 def _render_detail_view() -> bool:
-    analysis_value = st.query_params.get("analysis")
-    pair_value = st.query_params.get("pair")
+    analysis_value = st.session_state.get("detail_analysis_id") or st.query_params.get("analysis")
+    pair_value = st.session_state.get("detail_pair_idx")
+    if pair_value is None:
+        pair_value = st.query_params.get("pair")
     if not analysis_value or not pair_value:
         return False
 
@@ -327,5 +337,5 @@ if run:
             st.write(f"{idx + 1}. {r.name_a} × {r.name_b} / 一致率: {r.similarity * 100:.2f}%")
         with row_col2:
             if st.button("詳細を開く", key=f"open_detail_{idx}"):
-                _set_detail_query(analysis_id, idx)
+                _activate_detail_view(analysis_id, idx)
                 st.rerun()
