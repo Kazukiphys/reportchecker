@@ -139,7 +139,8 @@ def _render_pdf_panel(pdf_bytes: bytes, title: str, height: int = 820) -> None:
 
     try:
         pdf = pdfium.PdfDocument(BytesIO(pdf_bytes))
-        preview_pages = min(80, len(pdf))
+        # Keep rendering light for Community Cloud memory limits.
+        preview_pages = min(12, len(pdf))
         if preview_pages <= 0:
             return
 
@@ -147,7 +148,7 @@ def _render_pdf_panel(pdf_bytes: bytes, title: str, height: int = 820) -> None:
         image_blocks: list[str] = []
         for page_idx in range(preview_pages):
             page = pdf[page_idx]
-            bitmap = page.render(scale=1.5, rotation=0)
+            bitmap = page.render(scale=1.1, rotation=0)
             pil_image = bitmap.to_pil()
             img_buffer = BytesIO()
             pil_image.save(img_buffer, format="PNG")
@@ -169,7 +170,7 @@ def _render_pdf_panel(pdf_bytes: bytes, title: str, height: int = 820) -> None:
         components.html(scroller_html, height=height + 12)
 
         if len(pdf) > preview_pages:
-            st.info(f"ページ数が多いため先頭{preview_pages}ページのみ表示しています。必要ならPDFをダウンロードして確認してください。")
+            st.info(f"負荷軽減のため先頭{preview_pages}ページのみ表示しています。全ページはPDFダウンロードで確認してください。")
     except Exception:
         st.info("プレビュー生成に失敗しました。PDFダウンロードで確認してください。")
 
