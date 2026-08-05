@@ -505,3 +505,18 @@ if analysis_session is not None:
                 if analysis_id:
                     _activate_detail_view(analysis_id, idx)
                     st.rerun()
+
+    st.divider()
+    with st.container(border=True):
+        st.markdown("**一致率と候補数の見方（簡潔版）**")
+        st.write(
+            "一致率は「文書全体の近さ」を見る値で，同一文候補・類似文候補は「文単位で条件を満たした箇所」の数です。"
+            " そのため，候補数が0でも一致率が高くなる場合があります。"
+        )
+        st.markdown(
+            """
+- 全体は似ているが，文単位ではしきい値を超えない
+- 改行や体裁の差で文分割がずれる
+- 表・数値・見出し・定型表現が多い
+            """
+        )
