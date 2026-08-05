@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import base64
+import pickle
 import threading
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Dict, List, Tuple
 
 import pandas as pd
@@ -37,6 +39,11 @@ class AnalysisSession:
 SESSION_TTL_HOURS = 12
 _ANALYSIS_STORE: Dict[str, AnalysisSession] = {}
 _ANALYSIS_LOCK = threading.Lock()
+_ANALYSIS_CACHE_DIR = Path(".streamlit") / "analysis_cache"
+
+
+def _analysis_cache_path(analysis_id: str) -> Path:
+    return _ANALYSIS_CACHE_DIR / f"{analysis_id}.pkl"
 
 
 def _cleanup_expired_analysis_sessions() -> None:
@@ -52,6 +59,9 @@ def _store_analysis_session(session: AnalysisSession) -> str:
     _cleanup_expired_analysis_sessions()
     with _ANALYSIS_LOCK:
         _ANALYSIS_STORE[analysis_id] = session
+    _ANALYSIS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    with _analysis_cache_path(analysis_id).open("wb") as fp:
+        pickle.dump(session, fp)
     return analysis_id
 
 
@@ -60,7 +70,26 @@ def _get_analysis_session(analysis_id: str | None) -> AnalysisSession | None:
         return None
     _cleanup_expired_analysis_sessions()
     with _ANALYSIS_LOCK:
-        return _ANALYSIS_STORE.get(analysis_id)
+        session = _ANALYSIS_STORE.get(analysis_id)
+    if session is not None:
+        return session
+
+    cache_path = _analysis_cache_path(analysis_id)
+    if not cache_path.exists():
+        return None
+
+    try:
+        with cache_path.open("rb") as fp:
+            session = pickle.load(fp)
+    except Exception:
+        return None
+
+    if isinstance(session, AnalysisSession):
+        with _ANALYSIS_LOCK:
+            _ANALYSIS_STORE[analysis_id] = session
+        return session
+
+    return None
 
 
 def _clear_detail_query() -> None:
@@ -336,5 +365,6 @@ if run:
         with row_col1:
             st.write(f"{idx + 1}. {r.name_a} × {r.name_b} / 一致率: {r.similarity * 100:.2f}%")
         with row_col2:
-            detail_href = f"?analysis={analysis_id}&pair={idx}"
-            st.markdown(f'<a href="{detail_href}" target="_self">詳細を開く</a>', unsafe_allow_html=True)
+            if st.button("詳細を開く", key=f"open_detail_{idx}"):
+                _activate_detail_view(analysis_id, idx)
+                st.rerun()
