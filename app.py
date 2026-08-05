@@ -249,7 +249,9 @@ def _render_detail_view() -> bool:
     st.markdown("**同一文候補（ほぼ一致）**")
     if pair.exact_matches:
         for i, text in enumerate(pair.exact_matches[:12], start=1):
-            st.markdown(f"{i}. {text}")
+            st.markdown(f"{i}.")
+            with st.container(border=True):
+                st.write(text)
     else:
         st.write("該当なし")
 
@@ -260,10 +262,12 @@ def _render_detail_view() -> bool:
             c1, c2 = st.columns(2)
             with c1:
                 st.caption("左PDF")
-                st.write(m.sentence_a)
+                with st.container(border=True):
+                    st.write(m.sentence_a)
             with c2:
                 st.caption("右PDF")
-                st.write(m.sentence_b)
+                with st.container(border=True):
+                    st.write(m.sentence_b)
     else:
         st.write("該当なし")
 
