@@ -122,18 +122,8 @@ def _activate_detail_view(analysis_id: str, pair_idx: int) -> None:
 
 def _render_pdf_panel(pdf_bytes: bytes, title: str, height: int = 820) -> None:
     st.caption(title)
-    b64 = base64.b64encode(pdf_bytes).decode("ascii")
-    html = (
-        "<iframe "
-        f"src='data:application/pdf;base64,{b64}' "
-        "width='100%' "
-        f"height='{height}' "
-        "style='border:1px solid #ddd;border-radius:8px;'></iframe>"
-    )
-    components.html(html, height=height + 12)
-
-    # Some browsers/cloud sandboxes fail to render embedded PDF plugins.
-    # Always provide direct download and image preview fallback.
+    # PDFブラウザ埋め込みは環境依存で空表示になるため、
+    # プレビューをこのパネル内へ直接描画する。
     st.download_button(
         "PDFをダウンロード",
         data=pdf_bytes,
@@ -180,7 +170,7 @@ def _render_pdf_panel(pdf_bytes: bytes, title: str, height: int = 820) -> None:
         if len(pdf) > preview_pages:
             st.info(f"ページ数が多いため先頭{preview_pages}ページのみ表示しています。必要ならPDFをダウンロードして確認してください。")
     except Exception:
-        st.info("埋め込み表示に失敗しました。PDFダウンロードで確認してください。")
+        st.info("プレビュー生成に失敗しました。PDFダウンロードで確認してください。")
 
 
 def _render_detail_view() -> bool:
