@@ -279,7 +279,7 @@ if _render_detail_view():
 
 
 st.markdown("<div style='text-align:right;font-style:italic;color:#666;'>by Kazuki Kitaoka</div>", unsafe_allow_html=True)
-st.title("レポート一致チェック（校内利用向け）")
+st.title("レポート一致チェック")
 st.caption("複数PDFを比較して，一致率の高い組み合わせと一致箇所を確認できます。")
 
 with st.expander("使い方", expanded=False):
